@@ -1,9 +1,9 @@
 import "./App.css";
-import LoginScreen from "./screens/Login/LoginScreen";
+import LoginScreen from "./screens/Login/LoginScreen.jsx";
 import { Switch, Route } from "react-router-dom";
 import { Redirect } from "react-router";
-import LoginForm from "./screens/Login/LoginForm";
-import HomeScreen from "./screens/Home/HomeScreen";
+import LoginForm from "./screens/Login/LoginForm.jsx";
+import HomeScreen from "./screens/Home/HomeScreen.jsx";
 
 function App() {
   return (
