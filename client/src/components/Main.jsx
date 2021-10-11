@@ -110,5 +110,5 @@ const Input = styled.input`
   border-radius: 2.5rem;
   border: none;
   outline: none;
-  font-size: 0.95rem;
+  font-size: 1rem;
 `;
