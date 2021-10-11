@@ -25,7 +25,7 @@ const Sidebar = () => {
         <Search>
           <SearchBar>
             <SearchIcon />
-            <SearchInput placeholder="Search in chats" />
+            <input placeholder="Search in chats" />
           </SearchBar>
         </Search>
         <SidebarButton>Start a New Chat</SidebarButton>
@@ -42,15 +42,25 @@ const Sidebar = () => {
 export default Sidebar;
 
 const Container = styled.div`
-  width: 100%;
+  flex: 0.45;
+  height: 100vh;
+  min-width: 350px;
   max-width: 400px;
+  overflow-y: scroll;
   border-right: 1px solid #e2e2e2;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  --ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const Top = styled.div`
   position: sticky;
   top: 0;
-  z-index: 999;
+  z-index: 99;
 `;
 
 const Header = styled.div`
@@ -58,7 +68,7 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   background-color: #ebebeb;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
   border-bottom: 1px solid whitesmoke;
 `;
 
@@ -83,13 +93,14 @@ const SearchBar = styled.div`
   padding: 0.4rem 1rem;
   border: 1px solid whitesmoke;
   border-radius: 1.5rem;
-`;
-const SearchInput = styled.input`
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-  margin-left: 1rem;
+
+  > input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    margin-left: 1rem;
+  }
 `;
 
 const SidebarButton = styled(Button)`
@@ -99,11 +110,9 @@ const SidebarButton = styled(Button)`
     font-size: 1rem;
     padding: 0.5rem;
     color: black;
+    background-color: white;
     border-bottom: 1px solid whitesmoke;
   }
 `;
 
-const ChatsContainer = styled.div`
-  overflow-y: auto;
-  height: 80%;
-`;
+const ChatsContainer = styled.div``;
