@@ -14,7 +14,7 @@ export const login = (user) => {
   };
 };
 
-export const logout = (dispatch) => {
+export const logout = () => {
   return (dispatch) => {
     auth.signOut().then(() => {
       dispatch({ type: LOGOUT });
