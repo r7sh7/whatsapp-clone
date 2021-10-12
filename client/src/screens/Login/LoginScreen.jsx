@@ -1,29 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 import styled from "styled-components";
 import firebase from "firebase";
-import { auth, db } from "../../config/fbconfig";
-import { Redirect, useHistory } from "react-router";
-import { login } from "../../store/actions/authActions";
+import { auth } from "../../config/fbconfig";
+import { useHistory } from "react-router";
 
 const LoginScreen = () => {
   const [pno, setPno] = useState("+91 ");
   const [otp, setOtp] = useState("");
   const [show, setShow] = useState(false);
   const [result, setResult] = useState();
+  const [err, setErr] = useState("err");
 
-  const dispatch = useDispatch();
   const history = useHistory();
 
   const getOtp = (e) => {
     e.preventDefault();
-    console.log(pno);
-    if (pno === "" || pno.length < 10) return;
+    if (pno === "" || pno.length < 12) return;
     let verify = new firebase.auth.RecaptchaVerifier("recaptcha-container");
     auth
       .signInWithPhoneNumber(pno, verify)
       .then((result) => {
-        console.log(result);
         setResult(result);
         setShow(true);
       })
@@ -39,14 +35,11 @@ const LoginScreen = () => {
       .confirm(otp)
       .then((userAuth) => {
         // success
-        dispatch(login(userAuth.user));
         if (
           userAuth.user.metadata.creationTime ===
           userAuth.user.metadata.lastSignInTime
         ) {
           history.push("/loginform");
-        } else {
-          history.push("/");
         }
       })
       .catch((err) => {
@@ -54,9 +47,15 @@ const LoginScreen = () => {
       });
   };
 
-  const user = useSelector((state) => state.auth.user);
+  const checkNumber = (pnoEntered) => {
+    if (pnoEntered.substring(0, 3) !== "+91") {
+      setErr("Number should begin with +91");
+      console.log(err);
+    } else {
+      setPno(pnoEntered.split(" ").join(""));
+    }
+  };
 
-  if (user) return <Redirect to="/" />;
   return (
     <Container>
       <LoginContainer show={show}>
@@ -65,7 +64,7 @@ const LoginScreen = () => {
         <InputField
           placeholder="Enter your phone number"
           value={pno}
-          onChange={(e) => setPno(e.target.value)}
+          onChange={(e) => checkNumber(e.target.value)}
         />
         <p>Enter your 10 digit mobile number</p>
         <div id="recaptcha-container"></div>

@@ -8,14 +8,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chat from "./Chat";
 import ConversationsModal from "./ConversationsModal";
 import ContactsModal from "./ContactsModal";
-import { logout } from "../store/actions/authActions";
-import { useDispatch } from "react-redux";
+import { auth } from "../config/fbconfig";
 
 const Sidebar = () => {
   const [button, setButton] = useState("Conversations");
   const [showModal, setShowModal] = useState(false);
-
-  const dispatch = useDispatch();
 
   const handleModalClick = (e) => {
     e.preventDefault();
@@ -24,7 +21,7 @@ const Sidebar = () => {
 
   const handleLogoutClick = () => {
     console.log("clicked");
-    dispatch(logout());
+    auth.signOut();
   };
   return (
     <Container>

@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { auth, db } from "../config/fbconfig";
 
 const ContactsModal = ({ closeModal }) => {
+  const [user] = useAuthState(auth);
   const [name, setName] = useState("");
   const [pno, setPno] = useState("+91");
 
@@ -12,6 +16,25 @@ const ContactsModal = ({ closeModal }) => {
     setPno("+91");
     closeModal(e);
   };
+
+  const addToContactHandler = () => {
+    if (pno !== user.phoneNumber && !chatAlreadyExists(pno)) {
+      db.collection("chats").add({
+        users: [user.phoneNumber, pno],
+      });
+    }
+  };
+
+  const userChatRef = db
+    .collection("chats")
+    .where("users", "array-contains", user.phoneNumber);
+  const [chatsSnapshot] = useCollection(userChatRef);
+
+  const chatAlreadyExists = (pno) =>
+    !!chatsSnapshot?.docs.find(
+      (chat) => chat.data().users.find((user) => user === pno)?.length > 0
+    );
+
   return (
     <Card>
       <Header>
@@ -21,7 +44,7 @@ const ContactsModal = ({ closeModal }) => {
         </IconButton>
       </Header>
       <Body>
-        <form>
+        <form onSubmit={addToContactHandler}>
           <label htmlFor="text">Name</label>
           <input
             text

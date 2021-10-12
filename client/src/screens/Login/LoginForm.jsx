@@ -1,44 +1,42 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { Redirect, useHistory } from "react-router";
 import styled from "styled-components";
-import { auth } from "../../config/fbconfig";
-import { login } from "../../store/actions/authActions";
+import { auth, db } from "../../config/fbconfig";
 
 const LoginForm = () => {
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
+  const [user, loading] = useAuthState(auth);
 
   const history = useHistory();
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  console.log(user);
 
   const handleClick = () => {
-    const user = auth.currentUser;
-    user
+    const currentUser = auth.currentUser;
+    currentUser
       .updateProfile({
         displayName: name,
         photoURL: photoURL,
       })
       .then(() => {
-        dispatch(login(user));
-        history.push("/");
+        db.collection("users")
+          .doc(user.uid)
+          .set(
+            {
+              pno: user.phoneNumber,
+              photoURL: user.photoURL,
+              name: user.displayName,
+            },
+            { merge: true }
+          )
+          .then(() => history.push("/"));
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
-  useEffect(() => {
-    if (!user) {
-      history.push("/login");
-    } else if (user.name) {
-      history.push("/");
-    }
-  }, [history, user]);
-
-  if (!user) <Redirect to="/login" />;
+  if (!user || user?.displayName) return <Redirect to="/" />;
   return (
     <Container>
       <LoginContainer>
@@ -56,7 +54,6 @@ const LoginForm = () => {
         />
         <Button onClick={handleClick}>Next</Button>
       </LoginContainer>
-      ;
     </Container>
   );
 };
@@ -75,6 +72,7 @@ const LoginContainer = styled.div`
   align-items: center;
   padding: 3rem;
   background-color: white;
+  min-width: 30rem;
   border-radius: 0.4rem;
   box-shadow: 0px 4px 14px -3px rgba(0, 0, 0, 0.7);
 `;
