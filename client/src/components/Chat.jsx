@@ -1,14 +1,33 @@
 import React from "react";
 import styled from "styled-components";
 import Avatar from "@mui/material/Avatar";
+import { auth, db } from "../config/fbconfig";
+import { useAuthState } from "react-firebase-hooks/auth";
+import getRecipientNumber from "../utils/getRecipientNumber";
+import { useCollection } from "react-firebase-hooks/firestore";
 
-const Chat = () => {
+const Chat = ({ id, users }) => {
+  const [user] = useAuthState(auth);
+  const [recipientSnapshot] = useCollection(
+    db.collection("users").where("pno", "==", getRecipientNumber(users, user))
+  );
+  const recipient = recipientSnapshot?.docs?.[0]?.data();
+
   return (
     <Container>
-      <UseAvatar sx={{ height: "3.2rem", width: "3.2rem" }} />
+      {recipient?.photoURL ? (
+        <UseAvatar
+          sx={{ height: "3.2rem", width: "3.2rem" }}
+          src={recipient.photoURL}
+        />
+      ) : (
+        <UseAvatar sx={{ height: "3.2rem", width: "3.2rem" }}>
+          {recipient?.name[0]}
+        </UseAvatar>
+      )}
       <ChatDetails>
         <MessageDetails>
-          <h4>Rishi Bolinjkar</h4>
+          <h4>{recipient?.name}</h4>
           <p>Hello world! this is my first message</p>
         </MessageDetails>
         <MessageStats>
