@@ -50,7 +50,6 @@ const LoginScreen = () => {
   const checkNumber = (pnoEntered) => {
     if (pnoEntered.substring(0, 3) !== "+91") {
       setErr("Number should begin with +91");
-      console.log(err);
     } else {
       setPno(pnoEntered.split(" ").join(""));
     }

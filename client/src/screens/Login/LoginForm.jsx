@@ -26,6 +26,7 @@ const LoginForm = () => {
               pno: user.phoneNumber,
               photoURL: user.photoURL,
               name: user.displayName,
+              contacts: [],
             },
             { merge: true }
           )
