@@ -46,11 +46,18 @@ const Sidebar = () => {
         setChats(querySnapshot.docs);
       });
   }, [user.phoneNumber]);
+
   return (
     <Container>
       <Top>
         <Header>
-          <UseAvatar onClick={handleLogoutClick} />
+          {user.photoURL ? (
+            <UseAvatar onClick={handleLogoutClick} src={user.photoURL} />
+          ) : (
+            <UseAvatar onClick={handleLogoutClick}>
+              {user.displayName[0]}
+            </UseAvatar>
+          )}
           <HeaderIcons>
             <IconButton>
               <ChatIcon />
