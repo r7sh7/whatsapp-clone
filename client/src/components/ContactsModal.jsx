@@ -5,11 +5,13 @@ import { IconButton } from "@mui/material";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { auth, db } from "../config/fbconfig";
+import firebase from "firebase";
 
 const ContactsModal = ({ closeModal }) => {
   const [user] = useAuthState(auth);
   const [name, setName] = useState("");
   const [pno, setPno] = useState("+91");
+  const [err, setErr] = useState("");
 
   const reset = (e) => {
     setName("");
@@ -17,23 +19,46 @@ const ContactsModal = ({ closeModal }) => {
     closeModal(e);
   };
 
-  const addToContactHandler = () => {
-    if (pno !== user.phoneNumber && !chatAlreadyExists(pno)) {
-      db.collection("chats").add({
-        users: [user.phoneNumber, pno],
-      });
+  const checkNumber = (pnoEntered) => {
+    if (pnoEntered.substring(0, 3) !== "+91") {
+      setErr("Number should begin with +91");
+      console.log(err);
+    } else {
+      setPno(pnoEntered.split(" ").join(""));
     }
   };
 
-  const userChatRef = db
-    .collection("chats")
-    .where("users", "array-contains", user.phoneNumber);
-  const [chatsSnapshot] = useCollection(userChatRef);
-
-  const chatAlreadyExists = (pno) =>
-    !!chatsSnapshot?.docs.find(
-      (chat) => chat.data().users.find((user) => user === pno)?.length > 0
-    );
+  const useUserRef = db.collection("users").where("pno", "==", pno);
+  const [usersSnapshot] = useCollection(useUserRef);
+  const addToContactHandler = (e) => {
+    e.preventDefault();
+    if (pno === user.phoneNumber) {
+      setErr("Can't add your number as a contact");
+      console.log(err);
+    } else if (usersSnapshot.docs.length === 0) {
+      setErr("User does not exist!");
+      console.log(err);
+    } else {
+      db.collection("users")
+        .doc(user.uid)
+        .update({
+          contacts: firebase.firestore.FieldValue.arrayUnion({ pno, name }),
+        })
+        .then(() => {
+          db.collection("users")
+            .doc(user.uid)
+            .get()
+            .then((doc) => {
+              console.log(doc.data());
+            })
+            .catch((err) => console.log(err));
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      reset(e);
+    }
+  };
 
   return (
     <Card>
@@ -46,18 +71,13 @@ const ContactsModal = ({ closeModal }) => {
       <Body>
         <form onSubmit={addToContactHandler}>
           <label htmlFor="text">Name</label>
-          <input
-            text
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <input text value={name} onChange={(e) => setName(e.target.value)} />
           <label htmlFor="text">Phone Number</label>
           <input
             text
             required
             value={pno}
-            onChange={(e) => setPno(e.target.value)}
+            onChange={(e) => checkNumber(e.target.value)}
           />
           <button>Submit</button>
         </form>
