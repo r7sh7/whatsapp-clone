@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Avatar from "@mui/material/Avatar";
 import { IconButton } from "@mui/material";
@@ -8,21 +8,44 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chat from "./Chat";
 import ConversationsModal from "./ConversationsModal";
 import ContactsModal from "./ContactsModal";
-import { auth } from "../config/fbconfig";
+import { auth, db } from "../config/fbconfig";
+import Contact from "./Contact";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
 
 const Sidebar = () => {
   const [button, setButton] = useState("Conversations");
   const [showModal, setShowModal] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [chats, setChats] = useState([]);
+  const [user] = useAuthState(auth);
 
   const handleModalClick = (e) => {
     e.preventDefault();
     setShowModal(!showModal);
+    console.log(chats);
   };
 
   const handleLogoutClick = () => {
     console.log("clicked");
     auth.signOut();
   };
+
+  useEffect(() => {
+    db.collection("users")
+      .doc(user.uid)
+      .onSnapshot((doc) => {
+        setContacts(doc.data().contacts);
+      });
+  }, [user]);
+
+  useEffect(() => {
+    db.collection("chats")
+      .where("users", "array-contains", user.phoneNumber)
+      .onSnapshot((querySnapshot) => {
+        setChats(querySnapshot.docs);
+      });
+  }, [user.phoneNumber]);
   return (
     <Container>
       <Top>
@@ -59,9 +82,21 @@ const Sidebar = () => {
         </TabWrapper>
       </Top>
       <ChatsContainer>
-        {[...Array(20)].map((chat) => (
-          <Chat />
-        ))}
+        {button === "Conversations" ? (
+          chats.length === 0 ? (
+            <ContactsContainer>You have no chats</ContactsContainer>
+          ) : (
+            chats.map((chat) => {
+              return (
+                <Chat key={chat.id} id={chat.id} users={chat.data().users} />
+              );
+            })
+          )
+        ) : contacts.length === 0 ? (
+          <ContactsContainer>You have no contacts</ContactsContainer>
+        ) : (
+          contacts.map((contact) => <Contact contact={contact} />)
+        )}
       </ChatsContainer>
       <CreateButton onClick={handleModalClick}>
         {button === "Conversations"
@@ -188,4 +223,10 @@ const Modal = styled.div`
   right: 0;
   z-index: 9999;
   background-color: rgba(0, 0, 0, 0.6);
+`;
+
+const ContactsContainer = styled.div`
+  display: grid;
+  place-items: center;
+  height: 100%;
 `;
