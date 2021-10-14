@@ -16,11 +16,6 @@ const Chat = ({ id, users, active, contacts }) => {
   );
   const recipient = recipientSnapshot?.docs?.[0]?.data();
 
-  const history = useHistory();
-  const chatClickHandler = () => {
-    history.push(`/chats/${id}`);
-  };
-
   useEffect(() => {
     contacts?.forEach((contact) => {
       if (contact.pno === recipient?.pno) {
@@ -29,6 +24,11 @@ const Chat = ({ id, users, active, contacts }) => {
       }
     });
   }, [contacts, recipient?.pno]);
+
+  const history = useHistory();
+  const chatClickHandler = () => {
+    history.push(`/chats/${id}`);
+  };
   return (
     <Container onClick={chatClickHandler} active={active}>
       {recipient?.photoURL ? (
@@ -49,7 +49,7 @@ const Chat = ({ id, users, active, contacts }) => {
               <span style={{ fontSize: "0.8rem" }}>~ {recipient?.name}</span>
             </h4>
           ) : (
-            <h4>{name}</h4>
+            <h4>{name || recipient?.name}</h4>
           )}
           <p>Hello world! this is my first message</p>
         </MessageDetails>

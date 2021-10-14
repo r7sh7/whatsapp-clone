@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Avatar from "@mui/material/Avatar";
 import { IconButton } from "@mui/material";
@@ -8,18 +8,15 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chat from "./Chat";
 import ConversationsModal from "./ConversationsModal";
 import ContactsModal from "./ContactsModal";
-import { auth, db } from "../config/fbconfig";
+import { auth } from "../config/fbconfig";
 import Contact from "./Contact";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-const Sidebar = ({ id }) => {
+const Sidebar = ({ id, chats, contacts }) => {
   const [button, setButton] = useState("Conversations");
   const [showModal, setShowModal] = useState(false);
-  const [contacts, setContacts] = useState([]);
-  const [chats, setChats] = useState([]);
   const [user] = useAuthState(auth);
-
   const history = useHistory();
 
   const handleModalClick = (e) => {
@@ -31,22 +28,6 @@ const Sidebar = ({ id }) => {
     history.push("/");
     auth.signOut();
   };
-
-  useEffect(() => {
-    db.collection("users")
-      .doc(user.uid)
-      .onSnapshot((doc) => {
-        setContacts(doc.data().contacts);
-      });
-  }, [user]);
-
-  useEffect(() => {
-    db.collection("chats")
-      .where("users", "array-contains", user?.phoneNumber)
-      .onSnapshot((querySnapshot) => {
-        setChats(querySnapshot.docs);
-      });
-  }, [user?.phoneNumber]);
 
   return (
     <Container>
@@ -109,7 +90,9 @@ const Sidebar = ({ id }) => {
         ) : contacts.length === 0 ? (
           <ContactsContainer>You have no contacts</ContactsContainer>
         ) : (
-          contacts?.map((contact) => <Contact contact={contact} />)
+          contacts?.map((contact) => (
+            <Contact contact={contact} key={contact.pno} />
+          ))
         )}
       </ChatsContainer>
       <CreateButton onClick={handleModalClick}>
@@ -118,11 +101,15 @@ const Sidebar = ({ id }) => {
           : "Add a new Contact"}
       </CreateButton>
       <Modal status={showModal}>
-        {button === "Conversations" ? (
-          <ConversationsModal closeModal={handleModalClick} />
-        ) : (
-          <ContactsModal closeModal={handleModalClick} />
-        )}
+        {button === "Conversations"
+          ? showModal && <ConversationsModal closeModal={handleModalClick} />
+          : showModal && (
+              <ContactsModal
+                closeModal={handleModalClick}
+                recipientName=""
+                recipientNumber="+91"
+              />
+            )}
       </Modal>
     </Container>
   );

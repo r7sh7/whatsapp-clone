@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
@@ -7,11 +7,12 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import { auth, db } from "../config/fbconfig";
 import firebase from "firebase";
 
-const ContactsModal = ({ closeModal }) => {
+const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
+  console.log("component mounted");
   const [user] = useAuthState(auth);
+  const [err, setErr] = useState("");
   const [name, setName] = useState("");
   const [pno, setPno] = useState("+91");
-  const [err, setErr] = useState("");
 
   const reset = (e) => {
     setName("");
@@ -27,7 +28,7 @@ const ContactsModal = ({ closeModal }) => {
       setPno(pnoEntered.split(" ").join(""));
     }
   };
-
+  console.log(pno);
   const useUserRef = db.collection("users").where("pno", "==", pno);
   const [usersSnapshot] = useCollection(useUserRef);
   const addToContactHandler = (e) => {
@@ -60,6 +61,13 @@ const ContactsModal = ({ closeModal }) => {
     }
   };
 
+  useEffect(() => {
+    recipientName ? setName(recipientName) : setName("");
+    recipientNumber ? setPno(recipientNumber) : setName("+91");
+  }, [recipientName, recipientNumber]);
+
+  console.log(name);
+  console.log(pno);
   return (
     <Card>
       <Header>
