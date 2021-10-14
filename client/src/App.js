@@ -35,6 +35,9 @@ function App() {
       <Route exact path="/loginform">
         <LoginForm />
       </Route>
+      <Route exact path="/chats/:id">
+        {user ? <HomeScreen /> : <Redirect to="/" />}
+      </Route>
       <Route>
         <Redirect to="/" />
       </Route>

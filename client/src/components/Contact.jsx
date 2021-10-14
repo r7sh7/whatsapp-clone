@@ -2,6 +2,7 @@ import { Avatar } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
+import { useHistory } from "react-router";
 import styled from "styled-components";
 import { auth, db } from "../config/fbconfig";
 
@@ -10,9 +11,11 @@ const Contact = ({ contact }) => {
   const [dp, setDp] = useState("");
   const [user] = useAuthState(auth);
 
+  const history = useHistory();
+
   useEffect(() => {
     db.collectionGroup("users")
-      .where("pno", "==", contact.pno)
+      .where("pno", "==", contact?.pno)
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
@@ -28,7 +31,7 @@ const Contact = ({ contact }) => {
 
   const userChatRef = db
     .collection("chats")
-    .where("users", "array-contains", user.phoneNumber);
+    .where("users", "array-contains", user?.phoneNumber);
   const [chatsSnapshot] = useCollection(userChatRef);
   const chatAlreadyExists = (number) =>
     !!chatsSnapshot?.docs.find(
@@ -40,7 +43,7 @@ const Contact = ({ contact }) => {
         .add({
           users: [user.phoneNumber, contact.pno],
         })
-        .then(() => console.log("added"))
+        .then((res) => history.push(`/chats/${res.id}`))
         .catch((err) => console.log(err));
     } else {
       console.log("chat exists");

@@ -1,20 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Avatar from "@mui/material/Avatar";
 import { auth, db } from "../config/fbconfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import getRecipientNumber from "../utils/getRecipientNumber";
 import { useCollection } from "react-firebase-hooks/firestore";
+import { useHistory } from "react-router";
 
-const Chat = ({ id, users }) => {
+const Chat = ({ id, users, active, contacts }) => {
+  const [newContact, setNewContact] = useState(true);
   const [user] = useAuthState(auth);
+  const [name, setName] = useState("");
   const [recipientSnapshot] = useCollection(
     db.collection("users").where("pno", "==", getRecipientNumber(users, user))
   );
   const recipient = recipientSnapshot?.docs?.[0]?.data();
 
+  const history = useHistory();
+  const chatClickHandler = () => {
+    history.push(`/chats/${id}`);
+  };
+
+  useEffect(() => {
+    contacts?.forEach((contact) => {
+      if (contact.pno === recipient?.pno) {
+        setNewContact(false);
+        setName(contact.name);
+      }
+    });
+  }, [contacts, recipient?.pno]);
   return (
-    <Container>
+    <Container onClick={chatClickHandler} active={active}>
       {recipient?.photoURL ? (
         <UseAvatar
           sx={{ height: "3.2rem", width: "3.2rem" }}
@@ -22,12 +38,19 @@ const Chat = ({ id, users }) => {
         />
       ) : (
         <UseAvatar sx={{ height: "3.2rem", width: "3.2rem" }}>
-          {recipient?.name[0]}
+          {name[0] || recipient?.name[0]}
         </UseAvatar>
       )}
       <ChatDetails>
         <MessageDetails>
-          <h4>{recipient?.name}</h4>
+          {newContact ? (
+            <h4>
+              {recipient?.pno}
+              <span style={{ fontSize: "0.8rem" }}>~ {recipient?.name}</span>
+            </h4>
+          ) : (
+            <h4>{name}</h4>
+          )}
           <p>Hello world! this is my first message</p>
         </MessageDetails>
         <MessageStats>
@@ -45,7 +68,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
-
+  background-color: ${(props) => (props.active ? "#e2e2e2" : "white")};
   :hover {
     background-color: #e2e2e2;
   }

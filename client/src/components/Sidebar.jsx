@@ -11,23 +11,24 @@ import ContactsModal from "./ContactsModal";
 import { auth, db } from "../config/fbconfig";
 import Contact from "./Contact";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useCollection } from "react-firebase-hooks/firestore";
+import { useHistory } from "react-router";
 
-const Sidebar = () => {
+const Sidebar = ({ id }) => {
   const [button, setButton] = useState("Conversations");
   const [showModal, setShowModal] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [chats, setChats] = useState([]);
   const [user] = useAuthState(auth);
 
+  const history = useHistory();
+
   const handleModalClick = (e) => {
     e.preventDefault();
     setShowModal(!showModal);
-    console.log(chats);
   };
 
   const handleLogoutClick = () => {
-    console.log("clicked");
+    history.push("/");
     auth.signOut();
   };
 
@@ -41,21 +42,21 @@ const Sidebar = () => {
 
   useEffect(() => {
     db.collection("chats")
-      .where("users", "array-contains", user.phoneNumber)
+      .where("users", "array-contains", user?.phoneNumber)
       .onSnapshot((querySnapshot) => {
         setChats(querySnapshot.docs);
       });
-  }, [user.phoneNumber]);
+  }, [user?.phoneNumber]);
 
   return (
     <Container>
       <Top>
         <Header>
-          {user.photoURL ? (
+          {user?.photoURL ? (
             <UseAvatar onClick={handleLogoutClick} src={user.photoURL} />
           ) : (
             <UseAvatar onClick={handleLogoutClick}>
-              {user.displayName[0]}
+              {user?.displayName[0]}
             </UseAvatar>
           )}
           <HeaderIcons>
@@ -95,14 +96,20 @@ const Sidebar = () => {
           ) : (
             chats.map((chat) => {
               return (
-                <Chat key={chat.id} id={chat.id} users={chat.data().users} />
+                <Chat
+                  key={chat.id}
+                  id={chat.id}
+                  users={chat.data().users}
+                  active={id === chat.id ? true : false}
+                  contacts={contacts}
+                />
               );
             })
           )
         ) : contacts.length === 0 ? (
           <ContactsContainer>You have no contacts</ContactsContainer>
         ) : (
-          contacts.map((contact) => <Contact contact={contact} />)
+          contacts?.map((contact) => <Contact contact={contact} />)
         )}
       </ChatsContainer>
       <CreateButton onClick={handleModalClick}>

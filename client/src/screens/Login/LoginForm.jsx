@@ -7,7 +7,7 @@ import { auth, db } from "../../config/fbconfig";
 const LoginForm = () => {
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
-  const [user, loading] = useAuthState(auth);
+  const [user] = useAuthState(auth);
 
   const history = useHistory();
 
@@ -47,6 +47,7 @@ const LoginForm = () => {
           placeholder="Enter Display Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
         <InputField
           placeholder="Enter Photo URL"
