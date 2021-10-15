@@ -10,6 +10,9 @@ import { auth, db } from "../config/fbconfig";
 import getRecipientNumber from "../utils/getRecipientNumber";
 import { useCollection } from "react-firebase-hooks/firestore";
 import ContactsModal from "./ContactsModal";
+import firebase from "firebase";
+import Message from "./Message";
+import moment from "moment";
 
 const Conversations = ({ id, chats, contacts }) => {
   const [user] = useAuthState(auth);
@@ -17,6 +20,49 @@ const Conversations = ({ id, chats, contacts }) => {
   const [newContact, setNewContact] = useState(true);
   const [name, setName] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [input, setInput] = useState("");
+  const [messagesSnapshot] = useCollection(
+    db
+      .collection("chats")
+      .doc(id)
+      .collection("messages")
+      .orderBy("timestamp", "asc")
+  );
+
+  const sendMessage = (e) => {
+    e.preventDefault();
+
+    db.collection("users").doc(user.uid).set(
+      {
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    db.collection("chats").doc(id).collection("messages").add({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      message: input,
+      user: user.phoneNumber,
+    });
+
+    setInput("");
+  };
+
+  const showMessages = () => {
+    if (messagesSnapshot) {
+      return messagesSnapshot.docs.map((message) => {
+        return (
+          <Message
+            key={message.id}
+            message={{
+              ...message.data(),
+              timestamp: message.data().timestamp?.toDate().getTime(),
+            }}
+          />
+        );
+      });
+    }
+  };
 
   const handleModalClick = (e) => {
     e.preventDefault();
@@ -37,6 +83,7 @@ const Conversations = ({ id, chats, contacts }) => {
   const recipient = recipientSnapshot?.docs?.[0]?.data();
 
   useEffect(() => {
+    setNewContact(true);
     contacts?.forEach((contact) => {
       if (contact.pno === recipient?.pno) {
         setNewContact(false);
@@ -55,19 +102,25 @@ const Conversations = ({ id, chats, contacts }) => {
             ) : (
               <UseAvatar>{name[0] || recipient?.name[0]}</UseAvatar>
             )}
-            <HeaderInfo>
-              {newContact ? (
+
+            {newContact ? (
+              <HeaderInfo>
                 <h4>
                   {recipient?.pno}
                   <span style={{ fontSize: "0.8rem" }}>
                     ~ {recipient?.name}
                   </span>
                 </h4>
-              ) : (
+                <p>Last Seen: Not Available</p>
+              </HeaderInfo>
+            ) : (
+              <HeaderInfo>
                 <h4>{name || recipient?.name}</h4>
-              )}
-              <p>Last Seen...</p>
-            </HeaderInfo>
+                <p>
+                  Last Seen: {moment(recipient?.lastSeen.toDate()).fromNow()}
+                </p>
+              </HeaderInfo>
+            )}
           </HeaderLeft>
           <HeaderIcons>
             <IconButton>
@@ -83,13 +136,21 @@ const Conversations = ({ id, chats, contacts }) => {
         </AddToContacts>
       </HeaderContainer>
       <MessageConatiner>
+        {showMessages()}
         <EndOfMessage />
       </MessageConatiner>
       <InputContainer>
         <IconButton>
           <InsertEmoticonIcon fontSize="large" />
         </IconButton>
-        <Input placeholder="Type a message" />
+        <Input
+          placeholder="Type a message"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <button hidden disabled={!input} type="submit" onClick={sendMessage}>
+          Send Message
+        </button>
         <IconButton>
           <MicIcon fontSize="large" />
         </IconButton>

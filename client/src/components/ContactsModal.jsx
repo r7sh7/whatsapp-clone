@@ -8,7 +8,6 @@ import { auth, db } from "../config/fbconfig";
 import firebase from "firebase";
 
 const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
-  console.log("component mounted");
   const [user] = useAuthState(auth);
   const [err, setErr] = useState("");
   const [name, setName] = useState("");
@@ -28,7 +27,6 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
       setPno(pnoEntered.split(" ").join(""));
     }
   };
-  console.log(pno);
   const useUserRef = db.collection("users").where("pno", "==", pno);
   const [usersSnapshot] = useCollection(useUserRef);
   const addToContactHandler = (e) => {
@@ -66,8 +64,6 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
     recipientNumber ? setPno(recipientNumber) : setName("+91");
   }, [recipientName, recipientNumber]);
 
-  console.log(name);
-  console.log(pno);
   return (
     <Card>
       <Header>
