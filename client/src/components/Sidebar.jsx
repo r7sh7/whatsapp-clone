@@ -14,7 +14,7 @@ import { useHistory } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 const Sidebar = ({ id, chats, contacts }) => {
-  const [button, setButton] = useState("Conversations");
+  const [button, setButton] = useState("Chats");
   const [showModal, setShowModal] = useState(false);
   const [user] = useAuthState(auth);
   const history = useHistory();
@@ -57,10 +57,10 @@ const Sidebar = ({ id, chats, contacts }) => {
         </Search>
         <TabWrapper>
           <button
-            className={button === "Conversations" ? "active" : ""}
-            onClick={() => setButton("Conversations")}
+            className={button === "Chats" ? "active" : ""}
+            onClick={() => setButton("Chats")}
           >
-            Conversations
+            Chats
           </button>
           <button
             className={button === "Contacts" ? "active" : ""}
@@ -71,7 +71,7 @@ const Sidebar = ({ id, chats, contacts }) => {
         </TabWrapper>
       </Top>
       <ChatsContainer>
-        {button === "Conversations" ? (
+        {button === "Chats" ? (
           chats.length === 0 ? (
             <ContactsContainer>You have no chats</ContactsContainer>
           ) : (
@@ -96,12 +96,10 @@ const Sidebar = ({ id, chats, contacts }) => {
         )}
       </ChatsContainer>
       <CreateButton onClick={handleModalClick}>
-        {button === "Conversations"
-          ? "Start a new Conversation"
-          : "Add a new Contact"}
+        {button === "Chats" ? "Create a Group Chat" : "Add a new Contact"}
       </CreateButton>
       <Modal status={showModal}>
-        {button === "Conversations"
+        {button === "Chats"
           ? showModal && <ConversationsModal closeModal={handleModalClick} />
           : showModal && (
               <ContactsModal

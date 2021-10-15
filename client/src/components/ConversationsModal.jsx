@@ -10,7 +10,7 @@ const ConversationsModal = ({ closeModal }) => {
   return (
     <Card>
       <Header>
-        <h2>Start a new conversation</h2>
+        <h2>Create a Group Chat</h2>
         <IconButton onClick={reset}>
           <CloseIcon />
         </IconButton>
