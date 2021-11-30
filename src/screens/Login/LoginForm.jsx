@@ -8,10 +8,15 @@ const LoginForm = () => {
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
   const [user] = useAuthState(auth);
+  const [isValid, setIsValid] = useState(true);
 
   const history = useHistory();
 
   const handleClick = () => {
+    if (name === "") {
+      setIsValid(false);
+      return;
+    }
     const currentUser = auth.currentUser;
     currentUser
       .updateProfile({
@@ -41,18 +46,27 @@ const LoginForm = () => {
   return (
     <Container>
       <LoginContainer>
-        <h2>Login Form</h2>
+        <h1>Login Form</h1>
         <Logo src="/images/logo.svg" />
         <InputField
           placeholder="Enter Display Name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            setIsValid(true);
+          }}
           required
+          isValid={isValid}
+          autoFocus={true}
         />
+        {!isValid && (
+          <ErrorMessage>Display Name field cannot be empty</ErrorMessage>
+        )}
         <InputField
-          placeholder="Enter Photo URL"
+          placeholder="Enter Photo URL (optional)"
           value={photoURL}
           onChange={(e) => setPhotoURL(e.target.value)}
+          isValid={true}
         />
         <Button onClick={handleClick}>Next</Button>
       </LoginContainer>
@@ -86,12 +100,23 @@ const Button = styled.button`
 `;
 
 const InputField = styled.input`
-  margin: 1.5rem 0;
+  margin: 0.5rem 0;
   padding: 0.8rem;
   width: 200px;
   font-size: 1rem;
+  outline: none;
+  &:focus {
+    border: ${(props) =>
+      props.isValid ? "1px solid #3cbc28" : "1px solid red"};
+  }
+`;
+const ErrorMessage = styled.div`
+  margin-top: 0.2rem;
+  margin-bottom: 1rem;
+  color: red;
 `;
 
 const Logo = styled.img`
   height: 200px;
+  margin-bottom: 1rem;
 `;

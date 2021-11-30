@@ -9,19 +9,27 @@ const LoginScreen = () => {
   const [otp, setOtp] = useState("");
   const [show, setShow] = useState(false);
   const [result, setResult] = useState();
-  const [err, setErr] = useState("err");
+  const [err, setErr] = useState("");
+  const [isValid, setIsValid] = useState(true);
+  const [isDisabled, setIsDiabled] = useState(false);
 
   const history = useHistory();
 
   const getOtp = (e) => {
     e.preventDefault();
-    if (pno === "" || pno.length < 12) return;
+    if (pno === "" || pno.length < 13) {
+      setErr("Enter a valid phone number");
+      setIsValid(false);
+      return;
+    }
+    setIsDiabled(true);
     let verify = new firebase.auth.RecaptchaVerifier("recaptcha-container");
     auth
       .signInWithPhoneNumber(pno, verify)
       .then((result) => {
         setResult(result);
         setShow(true);
+        setIsDiabled(false);
       })
       .catch((err) => {
         alert(err);
@@ -30,7 +38,12 @@ const LoginScreen = () => {
   };
 
   const validateOtp = () => {
-    if (otp === null) return;
+    setIsValid(true);
+    if (otp === null) {
+      setErr("Invalid OTP!");
+      setIsValid(false);
+      return;
+    }
     result
       .confirm(otp)
       .then((userAuth) => {
@@ -43,14 +56,17 @@ const LoginScreen = () => {
         }
       })
       .catch((err) => {
-        alert("Wrong code");
+        setErr("Invalid OTP!");
+        setIsValid(false);
       });
   };
 
   const checkNumber = (pnoEntered) => {
     if (pnoEntered.substring(0, 3) !== "+91") {
       setErr("Number should begin with +91");
+      setIsValid(false);
     } else {
+      setIsValid(true);
       setPno(pnoEntered.split(" ").join(""));
     }
   };
@@ -64,10 +80,16 @@ const LoginScreen = () => {
           placeholder="Enter your phone number"
           value={pno}
           onChange={(e) => checkNumber(e.target.value)}
+          isValid={isValid}
+          disabled={isDisabled}
+          autoFocus={true}
         />
-        <p>Enter your 10 digit mobile number</p>
+        {!isValid && <ErrorMessage>{err}</ErrorMessage>}
+        {isValid && !isDisabled && <p>Enter your 10 digit mobile number</p>}
         <div id="recaptcha-container"></div>
-        <Button onClick={getOtp}>Get OTP</Button>
+        <Button onClick={getOtp} disabled={isDisabled}>
+          Get OTP
+        </Button>
       </LoginContainer>
       <OtpContainer show={show}>
         <h2>OTP sent to {pno}</h2>
@@ -76,7 +98,9 @@ const LoginScreen = () => {
           placeholder="Enter your OTP"
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
+          isValid={isValid}
         />
+        {!isValid && <ErrorMessage>{err}</ErrorMessage>}
         <Button onClick={validateOtp}>Verify</Button>
       </OtpContainer>
     </Container>
@@ -105,14 +129,24 @@ const Logo = styled.img`
 `;
 
 const InputField = styled.input`
-  margin: 1.5rem 0;
+  margin: 1rem;
   padding: 0.8rem;
   width: 200px;
   font-size: 1rem;
+  outline: none;
+  &:focus {
+    border: ${(props) =>
+      props.isValid ? "1px solid #3cbc28" : "1px solid red"};
+  }
+`;
+const ErrorMessage = styled.div`
+  margin-top: 0.2rem;
+  margin-bottom: 1rem;
+  color: red;
 `;
 
 const Button = styled.button`
-  margin-top: 0.8rem;
+  margin-top: 1.5rem;
   width: 100px;
   cursor: pointer;
 `;

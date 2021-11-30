@@ -10,19 +10,22 @@ import firebase from "firebase";
 const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
   const [user] = useAuthState(auth);
   const [err, setErr] = useState("");
+  const [isValid, setIsValid] = useState(true);
   const [name, setName] = useState("");
   const [pno, setPno] = useState("+91");
 
   const reset = (e) => {
     setName("");
     setPno("+91");
+    setIsValid(true);
     closeModal(e);
   };
 
   const checkNumber = (pnoEntered) => {
+    setIsValid(true);
     if (pnoEntered.substring(0, 3) !== "+91") {
       setErr("Number should begin with +91");
-      console.log(err);
+      setIsValid(false);
     } else {
       setPno(pnoEntered.split(" ").join(""));
     }
@@ -33,11 +36,16 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
     e.preventDefault();
     if (pno === user.phoneNumber) {
       setErr("Can't add your number as a contact");
-      console.log(err);
+      setIsValid(false);
+    } else if (pno === "+91") {
+      setErr("Please enter a valid phone number");
+      setIsValid(false);
     } else if (usersSnapshot.docs.length === 0) {
       setErr("User does not exist!");
-      console.log(err);
+      setIsValid(false);
     } else {
+      setErr("");
+      setIsValid(true);
       db.collection("users")
         .doc(user.uid)
         .update({
@@ -74,15 +82,18 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
       </Header>
       <Body>
         <form onSubmit={addToContactHandler}>
-          <label htmlFor="text">Name</label>
+          <label htmlFor="text">Name (optional)</label>
           <input text value={name} onChange={(e) => setName(e.target.value)} />
           <label htmlFor="text">Phone Number</label>
-          <input
+          <InputField
             text
             required
             value={pno}
             onChange={(e) => checkNumber(e.target.value)}
+            isValid={isValid}
+            autoFocus={true}
           />
+          {!isValid && <div>{err}</div>}
           <button>Submit</button>
         </form>
       </Body>
@@ -126,6 +137,9 @@ const Body = styled.div`
       margin-bottom: 1rem;
       outline: none;
       font-size: 1rem;
+      &:focus {
+        border: 1px solid #3cbc28;
+      }
     }
 
     > button {
@@ -139,5 +153,22 @@ const Body = styled.div`
       border: 1px solid #e2e2e2;
       border-radius: 0.2rem;
     }
+
+    > div {
+      color: red;
+    }
+  }
+`;
+
+const InputField = styled.input`
+  padding: 0.5rem;
+  border: 1px solid #e2e2e2;
+  border-radius: 0.2rem;
+  margin-bottom: 1rem;
+  outline: none;
+  font-size: 1rem;
+  &:focus {
+    border: ${(props) =>
+      props.isValid ? "1px solid #3cbc28" : "1px solid red"};
   }
 `;
