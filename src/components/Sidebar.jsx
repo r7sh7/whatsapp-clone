@@ -4,6 +4,8 @@ import Avatar from "@mui/material/Avatar";
 import { IconButton } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import LogoutIcon from "@mui/icons-material/Logout";
+import Tooltip from "@mui/material/Tooltip";
 import SearchIcon from "@mui/icons-material/Search";
 import Chat from "./Chat";
 import ConversationsModal from "./ConversationsModal";
@@ -12,19 +14,27 @@ import { auth } from "../config/fbconfig";
 import Contact from "./Contact";
 import { useHistory } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
+import LogoutModal from "./LogoutModal";
 
 const Sidebar = ({ id, chats, contacts }) => {
   const [button, setButton] = useState("Chats");
   const [showModal, setShowModal] = useState(false);
+  const [logoutModal, setLogoutModal] = useState(false);
   const [user] = useAuthState(auth);
   const history = useHistory();
 
   const handleModalClick = (e) => {
     e.preventDefault();
     setShowModal(!showModal);
+    setLogoutModal(false);
   };
 
   const handleLogoutClick = () => {
+    setShowModal(true);
+    setLogoutModal(true);
+  };
+
+  const handleLogout = () => {
     history.push("/");
     auth.signOut();
   };
@@ -34,25 +44,25 @@ const Sidebar = ({ id, chats, contacts }) => {
       <Top>
         <Header>
           {user?.photoURL ? (
-            <UseAvatar onClick={handleLogoutClick} src={user.photoURL} />
+            <UseAvatar src={user.photoURL} />
           ) : (
-            <UseAvatar onClick={handleLogoutClick}>
-              {user?.displayName[0]}
-            </UseAvatar>
+            <UseAvatar>{user?.displayName[0]}</UseAvatar>
           )}
           <HeaderIcons>
-            <IconButton>
+            {/* <IconButton>
               <ChatIcon />
-            </IconButton>
-            <IconButton>
-              <MoreVertIcon />
-            </IconButton>
+            </IconButton> */}
+            <Tooltip title="Log Out" placement="left">
+              <IconButton onClick={handleLogoutClick}>
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
           </HeaderIcons>
         </Header>
         <Search>
           <SearchBar>
             <SearchIcon />
-            <input placeholder="Search in chats" />
+            <input placeholder={`Search in ${button}`} />
           </SearchBar>
         </Search>
         <TabWrapper>
@@ -99,15 +109,19 @@ const Sidebar = ({ id, chats, contacts }) => {
         {button === "Chats" ? "Create a Group Chat" : "Add a new Contact"}
       </CreateButton>
       <Modal status={showModal}>
-        {button === "Chats"
-          ? showModal && <ConversationsModal closeModal={handleModalClick} />
-          : showModal && (
-              <ContactsModal
-                closeModal={handleModalClick}
-                recipientName=""
-                recipientNumber="+91"
-              />
-            )}
+        {logoutModal === true ? (
+          <LogoutModal closeModal={handleModalClick} logout={handleLogout} />
+        ) : button === "Chats" ? (
+          showModal && <ConversationsModal closeModal={handleModalClick} />
+        ) : (
+          showModal && (
+            <ContactsModal
+              closeModal={handleModalClick}
+              recipientName=""
+              recipientNumber="+91"
+            />
+          )
+        )}
       </Modal>
     </Container>
   );
@@ -118,7 +132,6 @@ export default Sidebar;
 const Container = styled.div`
   flex: 0.45;
   height: 100vh;
-  min-width: 350px;
   max-width: 400px;
   border-right: 1px solid #e2e2e2;
 `;
@@ -136,6 +149,7 @@ const Header = styled.div`
   background-color: #ebebeb;
   padding: 0.6rem 1rem;
   border-bottom: 1px solid whitesmoke;
+  position: relative;
 `;
 
 const UseAvatar = styled(Avatar)`
