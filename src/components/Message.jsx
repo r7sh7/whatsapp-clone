@@ -4,8 +4,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
 import { auth } from "../config/fbconfig";
 
-const Message = ({ message: { message, user }, timestamp }) => {
-  console.log(user);
+const Message = ({ message: { message, user, timestamp } }) => {
   const [userLoggedIn] = useAuthState(auth);
   const MessageType = user === userLoggedIn.phoneNumber ? Sender : Receiver;
   return (
@@ -24,13 +23,14 @@ const Container = styled.div``;
 
 const MessageElement = styled.p`
   width: fit-content;
-  padding: 0.9rem;
-  padding-bottom: 1.5rem;
+  padding: 0.4rem;
   border-radius: 0.5rem;
   margin: 0.6rem;
-  min-width: 60px;
-  position: relative;
-  text-align: right;
+  min-width: 80px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
 `;
 
 const Sender = styled(MessageElement)`
@@ -43,12 +43,10 @@ const Receiver = styled(MessageElement)`
   text-align: left;
 `;
 
-const Timestamp = styled.span`
+const Timestamp = styled.div`
   color: gray;
-  padding: 10px;
-  font-size: 0.6rem;
-  position: absolute;
-  bottom: 0;
-  right: 0;
+  font-size: 0.7rem;
   text-align: right;
+  padding-top: 0.5rem;
+  margin-left: 1.2rem;
 `;
