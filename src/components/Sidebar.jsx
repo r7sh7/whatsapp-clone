@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import Avatar from "@mui/material/Avatar";
 import { IconButton } from "@mui/material";
@@ -10,7 +10,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chat from "./Chat";
 import ConversationsModal from "./ConversationsModal";
 import ContactsModal from "./ContactsModal";
-import { auth } from "../config/fbconfig";
+import { auth, db } from "../config/fbconfig";
 import Contact from "./Contact";
 import { useHistory } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -20,6 +20,7 @@ const Sidebar = ({ id, chats, contacts }) => {
   const [button, setButton] = useState("Chats");
   const [showModal, setShowModal] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
+  const [messageChats, setMessageChats] = useState([]);
   const [user] = useAuthState(auth);
   const history = useHistory();
 
@@ -49,9 +50,6 @@ const Sidebar = ({ id, chats, contacts }) => {
             <UseAvatar>{user?.displayName[0]}</UseAvatar>
           )}
           <HeaderIcons>
-            {/* <IconButton>
-              <ChatIcon />
-            </IconButton> */}
             <Tooltip title="Log Out" placement="left">
               <IconButton onClick={handleLogoutClick}>
                 <LogoutIcon />
@@ -133,7 +131,9 @@ const Container = styled.div`
   flex: 0.45;
   height: 100vh;
   max-width: 400px;
+  min-width: 300px;
   border-right: 1px solid #e2e2e2;
+  overflow-y: hidden;
 `;
 
 const Top = styled.div`
@@ -204,7 +204,7 @@ const TabWrapper = styled.div`
 
 const ChatsContainer = styled.div`
   height: 70vh;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   ::-webkit-scrollbar {
     display: none;
