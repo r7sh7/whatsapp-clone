@@ -6,14 +6,27 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import getRecipientNumber from "../utils/getRecipientNumber";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useHistory } from "react-router";
+import moment from "moment";
 
 const Chat = ({ id, users, active, contacts }) => {
   const [newContact, setNewContact] = useState(true);
   const [user] = useAuthState(auth);
   const [name, setName] = useState("");
+  const [message, setMessage] = useState({});
   const [recipientSnapshot] = useCollection(
     db.collection("users").where("pno", "==", getRecipientNumber(users, user))
   );
+  const latestMessage = useCollection(
+    db
+      .collection("chats")
+      .doc(id)
+      .collection("messages")
+      .orderBy("timestamp", "desc")
+      .limit(1)
+  );
+
+  // latestMessage[0].docs.forEach((doc) => console.log(doc.data()));
+  // console.log(latestMessage[0]?.empty);
   const recipient = recipientSnapshot?.docs?.[0]?.data();
 
   useEffect(() => {
@@ -25,11 +38,20 @@ const Chat = ({ id, users, active, contacts }) => {
     });
   }, [contacts, recipient?.pno]);
 
+  useEffect(() => {
+    latestMessage[0]?.docs.forEach((doc) => {
+      setMessage(doc.data());
+    });
+  }, [latestMessage]);
+
   const history = useHistory();
   const chatClickHandler = () => {
     history.push(`/chats/${id}`);
   };
-  return (
+
+  return latestMessage[0]?.empty ? (
+    <></>
+  ) : (
     <Container onClick={chatClickHandler} active={active}>
       {recipient?.photoURL ? (
         <UseAvatar
@@ -51,11 +73,16 @@ const Chat = ({ id, users, active, contacts }) => {
           ) : (
             <h4>{name || recipient?.name}</h4>
           )}
-          <p>Hello world! this is my first message</p>
+          <p>{message.message}</p>
         </MessageDetails>
         <MessageStats>
-          <Time>12:45</Time>
-          <Number>90</Number>
+          <Time>
+            {/* {moment(message?.timestamp?.toDate().getTime()).format("LT")} */}
+            {moment(message?.timestamp?.toDate()).fromNow() === "24 hours ago"
+              ? moment(message?.timestamp?.toDate()).format("dddd")
+              : moment(message?.timestamp?.toDate().getTime()).format("LT")}
+          </Time>
+          {/* <Number>90</Number> */}
         </MessageStats>
       </ChatDetails>
     </Container>
@@ -68,9 +95,9 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
-  background-color: ${(props) => (props.active ? "#e2e2e2" : "white")};
+  background-color: ${(props) => (props.active ? "#d1d1d1c0" : "white")};
   :hover {
-    background-color: #e2e2e2;
+    background-color: ${(props) => (props.active ? "#e2e2e2c0" : "#d6d6d663")};
   }
 `;
 
@@ -82,7 +109,6 @@ const ChatDetails = styled.div`
   flex: 1;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 0.8rem;
   margin: 0 0.8rem;
   padding-left: 0;
@@ -100,20 +126,21 @@ const MessageDetails = styled.div`
     font-size: 0.88rem;
     font-weight: 500;
     margin: 0;
+    color: #646464;
   }
 `;
 
 const MessageStats = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
 `;
 
 const Time = styled.span`
-  margin-bottom: 0.2rem;
+  margin: 0.2rem 0;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 400;
+  color: #646464;
 `;
 const Number = styled.span`
   background-color: #3cbc28;
