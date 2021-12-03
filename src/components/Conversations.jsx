@@ -1,5 +1,5 @@
 import { Avatar, IconButton } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -18,9 +18,11 @@ const Conversations = ({ id, chats, contacts }) => {
   const [user] = useAuthState(auth);
   const [pno, setPno] = useState("");
   const [newContact, setNewContact] = useState(true);
+  const [unknownContact, setUnknownContact] = useState(true);
   const [name, setName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [input, setInput] = useState("");
+  const endOfMessageRef = useRef(null);
   const [messagesSnapshot] = useCollection(
     db
       .collection("chats")
@@ -28,6 +30,13 @@ const Conversations = ({ id, chats, contacts }) => {
       .collection("messages")
       .orderBy("timestamp", "asc")
   );
+
+  const scrollToBottom = () => {
+    endOfMessageRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -46,17 +55,18 @@ const Conversations = ({ id, chats, contacts }) => {
     });
 
     setInput("");
+    scrollToBottom();
   };
 
   const showMessages = () => {
     if (messagesSnapshot) {
-      return messagesSnapshot.docs.map((message) => {
+      return messagesSnapshot?.docs?.map((message) => {
         return (
           <Message
             key={message.id}
             message={{
               ...message.data(),
-              timestamp: message.data().timestamp?.toDate().getTime(),
+              timestamp: message?.data()?.timestamp?.toDate().getTime(),
             }}
           />
         );
@@ -75,7 +85,7 @@ const Conversations = ({ id, chats, contacts }) => {
         setPno(getRecipientNumber(chat.data().users, user));
       }
     });
-  }, [id, user, chats]);
+  }, [chats, id, user]);
 
   const [recipientSnapshot] = useCollection(
     db.collection("users").where("pno", "==", pno)
@@ -90,7 +100,15 @@ const Conversations = ({ id, chats, contacts }) => {
         setName(contact.name);
       }
     });
-  }, [contacts, recipient?.pno, id]);
+  }, [contacts, id, recipient?.pno]);
+
+  useEffect(() => {
+    if (!!!recipient?.contacts?.find(() => user.phoneNumber)) {
+      setUnknownContact(false);
+    } else {
+      setUnknownContact(true);
+    }
+  }, [recipient?.contacts, user.phoneNumber]);
 
   return (
     <Container>
@@ -111,14 +129,21 @@ const Conversations = ({ id, chats, contacts }) => {
                     ~ {recipient?.name}
                   </span>
                 </h4>
-                <p>Last Seen: Not Available</p>
+                {/* <p>Last Seen: Not Available</p> */}
+                <p>
+                  Last Seen: {moment(recipient?.lastSeen.toDate()).fromNow()}
+                </p>
               </HeaderInfo>
             ) : (
               <HeaderInfo>
                 <h4>{name || recipient?.name}</h4>
-                <p>
-                  Last Seen: {moment(recipient?.lastSeen.toDate()).fromNow()}
-                </p>
+                {unknownContact ? (
+                  <p>
+                    Last Seen: {moment(recipient?.lastSeen.toDate()).fromNow()}
+                  </p>
+                ) : (
+                  <p>Last Seen: Not Available</p>
+                )}
               </HeaderInfo>
             )}
           </HeaderLeft>
@@ -137,7 +162,7 @@ const Conversations = ({ id, chats, contacts }) => {
       </HeaderContainer>
       <MessageConatiner>
         {showMessages()}
-        <EndOfMessage />
+        <EndOfMessage ref={endOfMessageRef} />
       </MessageConatiner>
       <InputContainer>
         <IconButton>
@@ -235,11 +260,11 @@ const MessageConatiner = styled.div`
 const EndOfMessage = styled.div``;
 
 const InputContainer = styled.form`
+  display: flex;
+  align-items: center;
   position: sticky;
   bottom: 0;
   z-index: 99;
-  display: flex;
-  align-items: center;
   justify-content: space-between;
   padding: 0.6rem 1rem;
   background-color: #ebebeb;

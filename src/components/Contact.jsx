@@ -34,19 +34,21 @@ const Contact = ({ contact }) => {
     .where("users", "array-contains", user?.phoneNumber);
   const [chatsSnapshot] = useCollection(userChatRef);
   const chatAlreadyExists = (number) =>
-    !!chatsSnapshot?.docs.find(
+    chatsSnapshot?.docs.find(
       (chat) => chat.data().users.find((pno) => pno === number)?.length > 0
     );
+
   const handleContactClick = () => {
-    if (!chatAlreadyExists(contact.pno)) {
+    const chatExists = chatAlreadyExists(contact.pno);
+    if (chatExists) {
+      history.push(`/chats/${chatExists.id}`);
+    } else {
       db.collection("chats")
         .add({
           users: [user.phoneNumber, contact.pno],
         })
         .then((res) => history.push(`/chats/${res.id}`))
         .catch((err) => console.log(err));
-    } else {
-      console.log("chat exists");
     }
   };
 
