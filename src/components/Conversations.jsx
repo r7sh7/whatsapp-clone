@@ -129,7 +129,6 @@ const Conversations = ({ id, chats, contacts }) => {
                     ~ {recipient?.name}
                   </span>
                 </h4>
-                {/* <p>Last Seen: Not Available</p> */}
                 <p>
                   Last Seen: {moment(recipient?.lastSeen.toDate()).fromNow()}
                 </p>
