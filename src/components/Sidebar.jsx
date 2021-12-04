@@ -16,7 +16,7 @@ import { useHistory } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import LogoutModal from "./LogoutModal";
 
-const Sidebar = ({ id, chats, contacts }) => {
+const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
   const [button, setButton] = useState("Chats");
   const [showModal, setShowModal] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
@@ -45,9 +45,11 @@ const Sidebar = ({ id, chats, contacts }) => {
       <Top>
         <Header>
           {user?.photoURL ? (
-            <UseAvatar src={user.photoURL} />
+            <UseAvatar src={user.photoURL} onClick={handleProfileClick} />
           ) : (
-            <UseAvatar>{user?.displayName[0]}</UseAvatar>
+            <UseAvatar onClick={handleProfileClick}>
+              {user?.displayName[0]}
+            </UseAvatar>
           )}
           <HeaderIcons>
             <Tooltip title="Log Out" placement="left">
