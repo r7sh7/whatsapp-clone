@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Conversations from "../../components/Conversations.jsx";
 import Main from "../../components/Main.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
+import UserProfile from "../../components/UserProfile.jsx";
 import { auth, db } from "../../config/fbconfig.js";
 
 const HomeScreen = () => {
@@ -12,6 +13,7 @@ const HomeScreen = () => {
   const [contacts, setContacts] = useState([]);
   const [chats, setChats] = useState([]);
   const [user] = useAuthState(auth);
+  const [userProfile, setUserProfile] = useState(true);
 
   useEffect(() => {
     db.collection("users")
@@ -29,9 +31,21 @@ const HomeScreen = () => {
       });
   }, [user?.phoneNumber]);
 
+  const handleClick = () => {
+    setUserProfile((value) => !value);
+  };
   return (
     <Container>
-      <Sidebar id={id} chats={chats} contacts={contacts} />
+      {userProfile ? (
+        <UserProfile handleBackClick={handleClick} />
+      ) : (
+        <Sidebar
+          id={id}
+          chats={chats}
+          contacts={contacts}
+          handleProfileClick={handleClick}
+        />
+      )}
       {id ? (
         <Conversations id={id} chats={chats} contacts={contacts} />
       ) : (
