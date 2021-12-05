@@ -13,6 +13,7 @@ import ContactsModal from "./ContactsModal";
 import firebase from "firebase";
 import Message from "./Message";
 import moment from "moment";
+import Picker from "emoji-picker-react";
 
 const Conversations = ({ id, chats, contacts }) => {
   const [user] = useAuthState(auth);
@@ -22,6 +23,7 @@ const Conversations = ({ id, chats, contacts }) => {
   const [name, setName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [input, setInput] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
   const endOfMessageRef = useRef(null);
   const [messagesSnapshot] = useCollection(
     db
@@ -30,6 +32,10 @@ const Conversations = ({ id, chats, contacts }) => {
       .collection("messages")
       .orderBy("timestamp", "asc")
   );
+
+  const onEmojiClick = (event, emojiObject) => {
+    setInput((prevInput) => prevInput + emojiObject.emoji);
+  };
 
   const scrollToBottom = () => {
     endOfMessageRef.current.scrollIntoView({
@@ -159,26 +165,31 @@ const Conversations = ({ id, chats, contacts }) => {
           Add User To Contacts
         </AddToContacts>
       </HeaderContainer>
-      <MessageConatiner>
+      <MessageConatiner showPicker={showPicker}>
         {showMessages()}
         <EndOfMessage ref={endOfMessageRef} />
       </MessageConatiner>
-      <InputContainer>
-        <IconButton>
-          <InsertEmoticonIcon fontSize="large" />
-        </IconButton>
-        <Input
-          placeholder="Type a message"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button hidden disabled={!input} type="submit" onClick={sendMessage}>
-          Send Message
-        </button>
-        <IconButton>
-          <MicIcon fontSize="large" />
-        </IconButton>
-      </InputContainer>
+      <Footer>
+        <InputContainer>
+          <IconButton onClick={() => setShowPicker((value) => !value)}>
+            <InsertEmoticonIcon fontSize="large" />
+          </IconButton>
+          <Input
+            placeholder="Type a message"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button hidden disabled={!input} type="submit" onClick={sendMessage}>
+            Send Message
+          </button>
+          <IconButton>
+            <MicIcon fontSize="large" />
+          </IconButton>
+        </InputContainer>
+        {showPicker && (
+          <Picker pickerStyle={{ width: "100%" }} onEmojiClick={onEmojiClick} />
+        )}
+      </Footer>
       <Modal status={showModal}>
         {showModal && (
           <ContactsModal
@@ -195,7 +206,8 @@ const Conversations = ({ id, chats, contacts }) => {
 export default Conversations;
 
 const Container = styled.div`
-  flex: 1;
+  flex: 0.7;
+  width: 100%;
 `;
 
 const HeaderContainer = styled.div`
@@ -253,16 +265,20 @@ const HeaderIcons = styled.div`
 const MessageConatiner = styled.div`
   padding: 2rem;
   background-color: #e5ded8;
-  min-height: 90vh;
+  height: ${(props) => (props.showPicker ? "35vh" : "75vh")};
+  overflow-y: scroll;
 `;
 
 const EndOfMessage = styled.div``;
 
+const Footer = styled.div`
+  position: sticky;
+  bottom: 0;
+`;
+
 const InputContainer = styled.form`
   display: flex;
   align-items: center;
-  position: sticky;
-  bottom: 0;
   z-index: 99;
   justify-content: space-between;
   padding: 0.6rem 1rem;
