@@ -267,6 +267,7 @@ const MessageConatiner = styled.div`
   background-color: #e5ded8;
   height: ${(props) => (props.showPicker ? "35vh" : "75vh")};
   overflow-y: scroll;
+  padding-bottom: 3rem;
 `;
 
 const EndOfMessage = styled.div``;

@@ -151,9 +151,8 @@ const UserProfile = ({ handleBackClick }) => {
 export default UserProfile;
 
 const Container = styled.div`
-  flex: 0.45;
+  flex: 0.3;
   height: 100vh;
-  max-width: 400px;
   min-width: 300px;
   border-right: 1px solid #e2e2e2;
   background-color: #ebebeb;
