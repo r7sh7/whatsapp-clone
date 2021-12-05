@@ -13,7 +13,7 @@ const HomeScreen = () => {
   const [contacts, setContacts] = useState([]);
   const [chats, setChats] = useState([]);
   const [user] = useAuthState(auth);
-  const [userProfile, setUserProfile] = useState(true);
+  const [userProfile, setUserProfile] = useState(false);
 
   useEffect(() => {
     db.collection("users")
@@ -59,6 +59,7 @@ export default HomeScreen;
 
 const Container = styled.div`
   display: flex;
-  height: 100vh;
   overflow: hidden;
+  height: 100vh;
+  width: 100%;
 `;
