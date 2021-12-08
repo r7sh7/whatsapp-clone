@@ -265,9 +265,8 @@ const HeaderIcons = styled.div`
 const MessageConatiner = styled.div`
   padding: 2rem;
   background-color: #e5ded8;
-  height: ${(props) => (props.showPicker ? "35vh" : "75vh")};
+  height: ${(props) => (props.showPicker ? "35vh" : "74vh")};
   overflow-y: scroll;
-  padding-bottom: 3rem;
 `;
 
 const EndOfMessage = styled.div``;
