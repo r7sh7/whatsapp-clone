@@ -7,7 +7,12 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import { auth, db } from "../config/fbconfig";
 import firebase from "firebase";
 
-const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
+const ContactsModal = ({
+  closeModal,
+  recipientNumber,
+  recipientName,
+  contacts,
+}) => {
   const [user] = useAuthState(auth);
   const [err, setErr] = useState("");
   const [isValid, setIsValid] = useState(true);
@@ -21,6 +26,8 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
     closeModal(e);
   };
 
+  const useUserRef = db.collection("users").where("pno", "==", pno);
+  const [usersSnapshot] = useCollection(useUserRef);
   const checkNumber = (pnoEntered) => {
     setIsValid(true);
     if (pnoEntered.substring(0, 3) !== "+91") {
@@ -30,8 +37,7 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
       setPno(pnoEntered.split(" ").join(""));
     }
   };
-  const useUserRef = db.collection("users").where("pno", "==", pno);
-  const [usersSnapshot] = useCollection(useUserRef);
+
   const addToContactHandler = (e) => {
     e.preventDefault();
     if (pno === user.phoneNumber) {
@@ -43,13 +49,20 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
     } else if (usersSnapshot.docs.length === 0) {
       setErr("User does not exist!");
       setIsValid(false);
+    } else if (contacts?.includes(pno)) {
+      setErr("User already exists in contacts");
+      setIsValid(false);
     } else {
+      let contact = {
+        pno,
+        name: name === "" ? usersSnapshot?.docs[0].data().name : name,
+      };
       setErr("");
       setIsValid(true);
       db.collection("users")
         .doc(user.uid)
         .update({
-          contacts: firebase.firestore.FieldValue.arrayUnion({ pno, name }),
+          contacts: firebase.firestore.FieldValue.arrayUnion(contact),
         })
         .then(() => {
           db.collection("users")
@@ -68,6 +81,7 @@ const ContactsModal = ({ closeModal, recipientNumber, recipientName }) => {
   };
 
   useEffect(() => {
+    console.log("useEffect ran");
     recipientName ? setName(recipientName) : setName("");
     recipientNumber ? setPno(recipientNumber) : setName("+91");
   }, [recipientName, recipientNumber]);
