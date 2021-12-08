@@ -208,6 +208,7 @@ export default Conversations;
 const Container = styled.div`
   flex: 0.7;
   width: 100%;
+  overflow: hidden;
 `;
 
 const HeaderContainer = styled.div`
@@ -265,7 +266,7 @@ const HeaderIcons = styled.div`
 const MessageConatiner = styled.div`
   padding: 2rem;
   background-color: #e5ded8;
-  height: ${(props) => (props.showPicker ? "35vh" : "74vh")};
+  height: ${(props) => (props.showPicker ? "35vh" : "75.5vh")};
   overflow-y: scroll;
 `;
 
