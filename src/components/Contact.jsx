@@ -5,8 +5,9 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 import { auth, db } from "../config/fbconfig";
+import Highlighter from "react-highlight-words";
 
-const Contact = ({ contact }) => {
+const Contact = ({ contact, searchPhrase }) => {
   const [name, setName] = useState("");
   const [dp, setDp] = useState("");
   const [user] = useAuthState(auth);
@@ -56,7 +57,13 @@ const Contact = ({ contact }) => {
     <Container onClick={handleContactClick}>
       <UseAvatar sx={{ height: "3.2rem", width: "3.2rem" }} src={dp} />
       <ChatDetails>
-        <MessageDetails>{name}</MessageDetails>
+        <MessageDetails>
+          <Highlighter
+            textToHighlight={name}
+            searchWords={[searchPhrase]}
+            highlightStyle={{ color: "#53a384", backgroundColor: "none" }}
+          />
+        </MessageDetails>
       </ChatDetails>
     </Container>
   );

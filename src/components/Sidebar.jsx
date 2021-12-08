@@ -20,7 +20,9 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
   const [button, setButton] = useState("Chats");
   const [showModal, setShowModal] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
-  const [messageChats, setMessageChats] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filteredContacts, setFilteredContacts] = useState(contacts);
+  const [filteredChats, setFilteredChats] = useState(chats);
   const [user] = useAuthState(auth);
   const history = useHistory();
 
@@ -39,6 +41,24 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
     history.push("/");
     auth.signOut();
   };
+
+  useEffect(() => {
+    if (search === "") {
+      setFilteredContacts(contacts);
+      setFilteredChats(chats);
+    } else {
+      setFilteredContacts(
+        contacts.filter((user) =>
+          user.name.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+      // setFilteredChats(
+      //   chats.filter((user) =>
+      //     user?.name?.toLowerCase().includes(search.toLowerCase())
+      //   )
+      // );
+    }
+  }, [chats, contacts, search]);
 
   return (
     <Container>
@@ -62,7 +82,13 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
         <Search>
           <SearchBar>
             <SearchIcon />
-            <input placeholder={`Search in ${button}`} />
+            <form>
+              <input
+                type="text"
+                placeholder={`Search in ${button}`}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </form>
           </SearchBar>
         </Search>
         <TabWrapper>
@@ -85,7 +111,7 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
           chats.length === 0 ? (
             <ContactsContainer>You have no chats</ContactsContainer>
           ) : (
-            chats.map((chat) => {
+            filteredChats.map((chat) => {
               return (
                 <Chat
                   key={chat.id}
@@ -100,8 +126,12 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
         ) : contacts.length === 0 ? (
           <ContactsContainer>You have no contacts</ContactsContainer>
         ) : (
-          contacts?.map((contact) => (
-            <Contact contact={contact} key={contact.pno} />
+          filteredContacts?.map((contact) => (
+            <Contact
+              contact={contact}
+              key={contact.pno}
+              searchPhrase={search}
+            />
           ))
         )}
       </ChatsContainer>
@@ -119,6 +149,7 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
               closeModal={handleModalClick}
               recipientName=""
               recipientNumber="+91"
+              contacts={contacts.map((contact) => contact.pno)}
             />
           )
         )}
@@ -176,7 +207,7 @@ const SearchBar = styled.div`
   border: 1px solid whitesmoke;
   border-radius: 1.5rem;
 
-  > input {
+  > form > input {
     flex: 1;
     border: none;
     outline: none;
