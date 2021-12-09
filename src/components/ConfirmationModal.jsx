@@ -3,18 +3,22 @@ import styled from "styled-components";
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-const LogoutModal = ({ closeModal, logout }) => {
+const ConfirmationModal = ({ closeModal, action, actionName }) => {
   return (
     <Card>
       <Header>
-        <h2>Confirm Logout</h2>
+        <h2>Confirm {actionName}</h2>
         <IconButton onClick={(e) => closeModal(e)}>
           <CloseIcon />
         </IconButton>
       </Header>
       <Body>
-        <Text>Are you sure you want to logout?</Text>
-        <Button confirm onClick={logout}>
+        {actionName === "logout" ? (
+          <Text>Are you sure you want to logout?</Text>
+        ) : (
+          <Text>Are you sure you want to delete this message?</Text>
+        )}
+        <Button confirm onClick={action}>
           Yes
         </Button>
         <Button onClick={closeModal}>No</Button>
@@ -23,7 +27,7 @@ const LogoutModal = ({ closeModal, logout }) => {
   );
 };
 
-export default LogoutModal;
+export default ConfirmationModal;
 
 const Card = styled.div`
   max-width: 35rem;

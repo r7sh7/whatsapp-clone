@@ -64,6 +64,15 @@ const Conversations = ({ id, chats, contacts }) => {
     scrollToBottom();
   };
 
+  const handleDeleteMessage = (messageID) => {
+    // e.preventDefault();
+    db.collection("chats")
+      .doc(id)
+      .collection("messages")
+      .doc(messageID)
+      .delete();
+  };
+
   const showMessages = () => {
     if (messagesSnapshot) {
       return messagesSnapshot?.docs?.map((message) => {
@@ -74,6 +83,7 @@ const Conversations = ({ id, chats, contacts }) => {
               ...message.data(),
               timestamp: message?.data()?.timestamp?.toDate().getTime(),
             }}
+            handleDeleteMessage={() => handleDeleteMessage(message.id)}
           />
         );
       });

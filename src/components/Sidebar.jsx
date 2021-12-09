@@ -14,7 +14,7 @@ import { auth, db } from "../config/fbconfig";
 import Contact from "./Contact";
 import { useHistory } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
-import LogoutModal from "./LogoutModal";
+import ConfirmationModal from "./ConfirmationModal";
 
 const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
   const [button, setButton] = useState("Chats");
@@ -140,7 +140,11 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
       </CreateButton>
       <Modal status={showModal}>
         {logoutModal === true ? (
-          <LogoutModal closeModal={handleModalClick} logout={handleLogout} />
+          <ConfirmationModal
+            closeModal={handleModalClick}
+            action={handleLogout}
+            actionName="Logout"
+          />
         ) : button === "Chats" ? (
           showModal && <ConversationsModal closeModal={handleModalClick} />
         ) : (

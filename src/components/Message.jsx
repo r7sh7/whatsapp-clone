@@ -1,14 +1,28 @@
 import moment from "moment";
-import React from "react";
+import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
 import { auth } from "../config/fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton } from "@mui/material";
+import ConfirmationModal from "./ConfirmationModal";
 
-const Message = ({ message: { message, user, timestamp } }) => {
+const Message = ({
+  message: { message, user, timestamp },
+  handleDeleteMessage,
+}) => {
   const [userLoggedIn] = useAuthState(auth);
   const MessageType = user === userLoggedIn.phoneNumber ? Sender : Receiver;
+  const [showModal, setShowModal] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowModal(true);
+  };
+
+  const handleModalClick = (e) => {
+    e.preventDefault();
+    setShowModal(!showModal);
+  };
 
   return (
     <Container>
@@ -16,11 +30,18 @@ const Message = ({ message: { message, user, timestamp } }) => {
         {message}
         <Timestamp>{moment(timestamp).format("LT")}</Timestamp>
         {MessageType === Sender && (
-          <IconButton>
+          <IconButton onClick={handleDeleteClick}>
             <DeleteIcon />
           </IconButton>
         )}
       </MessageType>
+      <Modal status={showModal}>
+        <ConfirmationModal
+          closeModal={handleModalClick}
+          action={handleDeleteMessage}
+          actionName="Delete"
+        />
+      </Modal>
     </Container>
   );
 };
@@ -71,6 +92,18 @@ const Timestamp = styled.div`
   button:hover {
     display: inline-block;
     background-color: #dcf8c6;
-    cursor: pointer;
   }
+`;
+
+const Modal = styled.div`
+  position: fixed;
+  display: ${(props) => (props.status ? "grid" : "none")};
+  place-items: center;
+  height: 100vh;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.6);
 `;
