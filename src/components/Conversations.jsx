@@ -116,6 +116,25 @@ const Conversations = ({ id, chats, contacts }) => {
     }
   }, [recipient?.contacts, user.phoneNumber]);
 
+  useEffect(() => {
+    db.collection("chats")
+      .doc(id)
+      .collection("messages")
+      .where("user", "!=", user.phoneNumber)
+      .get()
+      .then((snapshots) => {
+        snapshots.forEach((message) => {
+          if (message.data().timestamp <= firebase.firestore.Timestamp.now()) {
+            db.collection("chats")
+              .doc(id)
+              .collection("messages")
+              .doc(message.id)
+              .set({ seen: true }, { merge: true });
+          }
+        });
+      });
+  });
+
   return (
     <Container>
       <HeaderContainer>

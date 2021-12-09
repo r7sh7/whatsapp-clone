@@ -7,25 +7,26 @@ import getRecipientNumber from "../utils/getRecipientNumber";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useHistory } from "react-router";
 import moment from "moment";
+import firebase from "firebase";
 
 const Chat = ({ id, users, active, contacts }) => {
   const [newContact, setNewContact] = useState(true);
   const [user] = useAuthState(auth);
   const [name, setName] = useState("");
-  const [message, setMessage] = useState({});
+  const [newMessages, setNewMessages] = useState(0);
+  const [latestMessage, setLatestMessage] = useState();
   const [recipientSnapshot] = useCollection(
     db.collection("users").where("pno", "==", getRecipientNumber(users, user))
   );
-  const latestMessage = useCollection(
+  let Messages = useCollection(
     db
       .collection("chats")
       .doc(id)
       .collection("messages")
-      .orderBy("timestamp", "desc")
-      .limit(1)
+      .orderBy("timestamp", "asc")
   );
 
-  // latestMessage[0].docs.forEach((doc) => console.log(doc.data()));
+  // Messages[0]?.docs.forEach((doc) => console.log(doc.data()));
   // console.log(latestMessage[0]?.empty);
   const recipient = recipientSnapshot?.docs?.[0]?.data();
 
@@ -39,17 +40,30 @@ const Chat = ({ id, users, active, contacts }) => {
   }, [contacts, recipient?.pno]);
 
   useEffect(() => {
-    latestMessage[0]?.docs.forEach((doc) => {
-      setMessage(doc.data());
+    Messages[0]?.docs.forEach((doc) => {
+      if (doc.data().user !== user.phoneNumber && !doc.data().seen) {
+        setNewMessages((prevValue) => prevValue + 1);
+      } else {
+        setNewMessages(0);
+      }
     });
-  }, [latestMessage]);
+    setLatestMessage(Messages[0]?.docs?.slice(-1)[0]?.data());
+  }, [Messages, user.phoneNumber]);
 
   const history = useHistory();
   const chatClickHandler = () => {
     history.push(`/chats/${id}`);
+    Messages[0]?.docs.forEach((doc) => {
+      if (doc.data().user !== user.phoneNumber && !doc.data().seen) {
+        setNewMessages((prevValue) => prevValue + 1);
+      } else {
+        setNewMessages(0);
+      }
+    });
   };
 
-  return latestMessage[0]?.empty ? (
+  // console.log(latestMessage);
+  return latestMessage === undefined ? (
     <></>
   ) : (
     <Container onClick={chatClickHandler} active={active}>
@@ -64,7 +78,7 @@ const Chat = ({ id, users, active, contacts }) => {
         </UseAvatar>
       )}
       <ChatDetails>
-        <MessageDetails>
+        <MessageDetails newMessage={newMessages}>
           {newContact ? (
             <h4>
               {recipient?.pno}
@@ -73,16 +87,19 @@ const Chat = ({ id, users, active, contacts }) => {
           ) : (
             <h4>{name || recipient?.name}</h4>
           )}
-          <p>{message.message}</p>
+          <p>{latestMessage?.message}</p>
         </MessageDetails>
         <MessageStats>
-          <Time>
+          <Time newMessage={newMessages}>
             {/* {moment(message?.timestamp?.toDate().getTime()).format("LT")} */}
-            {moment(message?.timestamp?.toDate()).fromNow() === "24 hours ago"
-              ? moment(message?.timestamp?.toDate()).format("dddd")
-              : moment(message?.timestamp?.toDate().getTime()).format("LT")}
+            {moment(latestMessage?.timestamp?.toDate()).fromNow() ===
+            "24 hours ago"
+              ? moment(latestMessage?.timestamp?.toDate()).format("dddd")
+              : moment(latestMessage?.timestamp?.toDate().getTime()).format(
+                  "LT"
+                )}
           </Time>
-          {/* <Number>90</Number> */}
+          {newMessages !== 0 && <Number>{newMessages}</Number>}
         </MessageStats>
       </ChatDetails>
     </Container>
@@ -121,12 +138,13 @@ const MessageDetails = styled.div`
     font-weight: 500;
     margin: 0;
     margin-bottom: 0.2rem;
+    color: ${(props) => (props.newMessage !== 0 ? "black" : "#2e2e2e")};
   }
   > p {
-    font-size: 0.88rem;
+    font-size: 1rem;
     font-weight: 500;
     margin: 0;
-    color: #646464;
+    color: ${(props) => (props.newMessage !== 0 ? "black" : "#646464")};
   }
 `;
 
@@ -140,14 +158,17 @@ const Time = styled.span`
   text-align: center;
   font-size: 0.8rem;
   font-weight: 400;
-  color: #646464;
+  color: ${(props) => (props.newMessage !== 0 ? "black" : "#646464")};
 `;
 const Number = styled.span`
+  margin-left: auto;
   background-color: #3cbc28;
   text-align: center;
   color: white;
   font-weight: 600;
   font-size: 0.8rem;
-  border-radius: 1rem;
-  padding: 0.1rem 0;
+  border-radius: 50%;
+  height: 0.9rem;
+  min-width: 1rem;
+  padding: 0.2rem;
 `;
