@@ -85,7 +85,8 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
             <form>
               <input
                 type="text"
-                placeholder={`Search in ${button}`}
+                placeholder={`Search for a contact`}
+                onClick={() => setButton("Contacts")}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </form>
