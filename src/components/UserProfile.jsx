@@ -167,7 +167,7 @@ const HeaderTitle = styled.h3`
   color: whitesmoke;
   font-weight: 500;
   text-align: center;
-  margin-left: 8rem;
+  margin: auto;
 `;
 
 const ProfilePic = styled.div`
