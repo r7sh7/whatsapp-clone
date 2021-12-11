@@ -15,7 +15,7 @@ import Message from "./Message";
 import moment from "moment";
 import Picker from "emoji-picker-react";
 
-const Conversations = ({ id, chats, contacts }) => {
+const Conversations = ({ id, chats, contacts, showProfile }) => {
   const [user] = useAuthState(auth);
   const [pno, setPno] = useState("");
   const [newContact, setNewContact] = useState(true);
@@ -151,9 +151,11 @@ const Conversations = ({ id, chats, contacts }) => {
         <Header>
           <HeaderLeft>
             {recipient?.photoURL ? (
-              <UseAvatar src={recipient.photoURL} />
+              <UseAvatar src={recipient.photoURL} onClick={showProfile} />
             ) : (
-              <UseAvatar>{name[0] || recipient?.name[0]}</UseAvatar>
+              <UseAvatar onClick={showProfile}>
+                {name[0] || recipient?.name[0]}
+              </UseAvatar>
             )}
 
             {newContact ? (
@@ -293,13 +295,15 @@ const HeaderIcons = styled.div`
 `;
 
 const MessageConatiner = styled.div`
-  padding: 2rem;
+  padding: 1rem;
   background-color: #e5ded8;
-  height: ${(props) => (props.showPicker ? "35vh" : "75.5vh")};
+  height: ${(props) => (props.showPicker ? "35vh" : "79.5vh")};
   overflow-y: scroll;
 `;
 
-const EndOfMessage = styled.div``;
+const EndOfMessage = styled.div`
+  margin-top: 1rem;
+`;
 
 const Footer = styled.div`
   position: sticky;

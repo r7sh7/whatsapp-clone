@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import styled from "styled-components";
 import Conversations from "../../components/Conversations.jsx";
 import Main from "../../components/Main.jsx";
+import RecepientProfile from "../../components/RecepientProfile.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 import UserProfile from "../../components/UserProfile.jsx";
 import { auth, db } from "../../config/fbconfig.js";
@@ -14,6 +15,7 @@ const HomeScreen = () => {
   const [chats, setChats] = useState([]);
   const [user] = useAuthState(auth);
   const [userProfile, setUserProfile] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     db.collection("users")
@@ -47,9 +49,22 @@ const HomeScreen = () => {
         />
       )}
       {id ? (
-        <Conversations id={id} chats={chats} contacts={contacts} />
+        <Conversations
+          id={id}
+          chats={chats}
+          contacts={contacts}
+          showProfile={() => setShowProfile(true)}
+        />
       ) : (
         <Main />
+      )}
+      {showProfile && (
+        <RecepientProfile
+          id={id}
+          chats={chats}
+          contacts={contacts}
+          handleBackClick={() => setShowProfile(false)}
+        />
       )}
     </Container>
   );
