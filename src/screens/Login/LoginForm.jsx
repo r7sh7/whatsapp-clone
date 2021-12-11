@@ -8,38 +8,49 @@ const LoginForm = () => {
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
   const [user] = useAuthState(auth);
-  const [isValid, setIsValid] = useState(true);
+  const [isNameValid, setIsNameValid] = useState(true);
+  const [isURLValid, setIsURLValid] = useState(true);
+  const [err, setErr] = useState("");
 
   const history = useHistory();
 
   const handleClick = () => {
     if (name === "") {
-      setIsValid(false);
+      setIsNameValid(false);
+      setErr("Display Name field caanot be empty");
       return;
+    } else if (
+      photoURL !== "" &&
+      photoURL.match(/\.(jpeg|jpg|gif|png)$/) === null
+    ) {
+      setIsURLValid(false);
+      setErr("Invalid URL!");
+      return;
+    } else {
+      const currentUser = auth.currentUser;
+      currentUser
+        .updateProfile({
+          displayName: name,
+          photoURL: photoURL,
+        })
+        .then(() => {
+          db.collection("users")
+            .doc(user.uid)
+            .set(
+              {
+                pno: user.phoneNumber,
+                photoURL: user.photoURL,
+                name: user.displayName,
+                contacts: [],
+              },
+              { merge: true }
+            )
+            .then(() => history.push("/"));
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-    const currentUser = auth.currentUser;
-    currentUser
-      .updateProfile({
-        displayName: name,
-        photoURL: photoURL,
-      })
-      .then(() => {
-        db.collection("users")
-          .doc(user.uid)
-          .set(
-            {
-              pno: user.phoneNumber,
-              photoURL: user.photoURL,
-              name: user.displayName,
-              contacts: [],
-            },
-            { merge: true }
-          )
-          .then(() => history.push("/"));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   if (!user || user?.displayName) return <Redirect to="/" />;
@@ -53,21 +64,24 @@ const LoginForm = () => {
           value={name}
           onChange={(e) => {
             setName(e.target.value);
-            setIsValid(true);
+            setIsNameValid(true);
           }}
           required
-          isValid={isValid}
+          isValid={isNameValid}
           autoFocus={true}
         />
-        {!isValid && (
-          <ErrorMessage>Display Name field cannot be empty</ErrorMessage>
-        )}
+        {!isNameValid && <ErrorMessage>{err}</ErrorMessage>}
         <InputField
           placeholder="Enter Photo URL (optional)"
           value={photoURL}
-          onChange={(e) => setPhotoURL(e.target.value)}
-          isValid={true}
+          onChange={(e) => {
+            setPhotoURL(e.target.value);
+            setIsURLValid(true);
+          }}
+          isValid={isURLValid}
+          autoFocus={!isURLValid}
         />
+        {!isURLValid && <ErrorMessage>{err}</ErrorMessage>}
         <Button onClick={handleClick}>Next</Button>
       </LoginContainer>
     </Container>
