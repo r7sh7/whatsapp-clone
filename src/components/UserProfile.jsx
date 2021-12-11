@@ -13,7 +13,9 @@ const UserProfile = ({ handleBackClick }) => {
   const [editName, setEditName] = useState(false);
   const [name, setName] = useState(user.displayName);
   const [dp, setDp] = useState(user.photoURL);
+  const [isURLValid, setIsURLValid] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
 
   const updateFirebaseUser = (value) => {
     const currentUser = auth.currentUser;
@@ -66,6 +68,11 @@ const UserProfile = ({ handleBackClick }) => {
   };
 
   const handleURLUpdate = () => {
+    if (dp !== "" && dp.match(/\.(jpeg|jpg|gif|png)$/) === null) {
+      setIsURLValid(false);
+      setErr("Invalid URL!");
+      return;
+    }
     setEditURL(false);
     setLoading(true);
     updateFirebaseUser("Dp");
@@ -79,11 +86,18 @@ const UserProfile = ({ handleBackClick }) => {
         >
           <ArrowBackIcon style={{ color: "whitesmoke" }} />
         </IconButton>
-        <HeaderTitle> Profile</HeaderTitle>
+        <HeaderTitle>Profile</HeaderTitle>
       </Header>
       <ProfilePic>
         {user.photoURL ? (
-          <img src={user.photoURL} alt="Profile Pic" />
+          <img
+            src={user.photoURL}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "/images/blank-profile-picture.webp";
+            }}
+            alt="Profile Pic"
+          />
         ) : (
           <div>
             <p>No Profile Picture Chosen</p>
@@ -98,7 +112,12 @@ const UserProfile = ({ handleBackClick }) => {
             <input
               type="text"
               value={dp}
-              onChange={(e) => setDp(e.target.value)}
+              onChange={(e) => {
+                setDp(e.target.value);
+                setIsURLValid(true);
+              }}
+              isValid={isURLValid}
+              autoFocus={!isURLValid}
             />
             <IconButton onClick={handleURLUpdate}>
               <CheckIcon />
@@ -116,6 +135,7 @@ const UserProfile = ({ handleBackClick }) => {
             </IconButton>
           </InfoInput>
         )}
+        {!isURLValid && <ErrorMessage>{err}</ErrorMessage>}
       </InfoContainer>
       <ProfilePic>
         <p>
@@ -230,4 +250,10 @@ const InfoInput = styled.div`
       color: black;
     }
   }
+`;
+
+const ErrorMessage = styled.div`
+  margin-top: 0.2rem;
+  margin-bottom: 1rem;
+  color: red;
 `;

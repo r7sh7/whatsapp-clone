@@ -13,7 +13,7 @@ const ConfirmationModal = ({ closeModal, action, actionName }) => {
         </IconButton>
       </Header>
       <Body>
-        {actionName === "logout" ? (
+        {actionName === "Logout" ? (
           <Text>Are you sure you want to logout?</Text>
         ) : (
           <Text>Are you sure you want to delete this message?</Text>
