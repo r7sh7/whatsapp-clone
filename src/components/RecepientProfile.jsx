@@ -18,42 +18,32 @@ const RecepientProfile = ({ id, chats, contacts, handleBackClick }) => {
   const [pno, setPno] = useState("");
   const [newName, setNewName] = useState("");
 
-  const updateFirebaseUser = (value) => {
-    const currentUser = auth.currentUser;
-    currentUser
-      .updateProfile({
-        displayName: name,
-      })
+  const updateFirebaseUser = () => {
+    db.collection("users")
+      .doc(user.uid)
+      .update(
+        {
+          contacts: firebase.firestore.FieldValue.arrayRemove({
+            name,
+            pno,
+          }),
+        },
+        { merge: true }
+      )
       .then(() => {
         db.collection("users")
           .doc(user.uid)
           .update(
             {
-              contacts: firebase.firestore.FieldValue.arrayRemove({
-                name,
+              contacts: firebase.firestore.FieldValue.arrayUnion({
+                name: newName,
                 pno,
               }),
             },
             { merge: true }
-          )
-          .then(() => {
-            db.collection("users")
-              .doc(user.uid)
-              .update(
-                {
-                  contacts: firebase.firestore.FieldValue.arrayUnion({
-                    name: newName,
-                    pno,
-                  }),
-                },
-                { merge: true }
-              );
-          })
-          .catch((err) => console.log(err));
+          );
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   };
 
   const handleNameUpdate = () => {

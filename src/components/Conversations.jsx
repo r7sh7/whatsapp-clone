@@ -119,12 +119,12 @@ const Conversations = ({ id, chats, contacts, showProfile }) => {
   }, [contacts, id, recipient?.pno]);
 
   useEffect(() => {
-    if (!!!recipient?.contacts?.find(() => user.phoneNumber)) {
+    if (!!recipient?.contacts?.find((x) => x.pno === user.phoneNumber)) {
       setUnknownContact(false);
     } else {
       setUnknownContact(true);
     }
-  }, [recipient?.contacts, user.phoneNumber]);
+  }, [recipient?.contacts, user.phoneNumber, id]);
 
   useEffect(() => {
     db.collection("chats")
@@ -174,11 +174,11 @@ const Conversations = ({ id, chats, contacts, showProfile }) => {
               <HeaderInfo>
                 <h4>{name || recipient?.name}</h4>
                 {unknownContact ? (
+                  <p>Last Seen: Not Available</p>
+                ) : (
                   <p>
                     Last Seen: {moment(recipient?.lastSeen.toDate()).fromNow()}
                   </p>
-                ) : (
-                  <p>Last Seen: Not Available</p>
                 )}
               </HeaderInfo>
             )}

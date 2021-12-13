@@ -1,16 +1,14 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Avatar from "@mui/material/Avatar";
 import { IconButton } from "@mui/material";
-import ChatIcon from "@mui/icons-material/Chat";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Tooltip from "@mui/material/Tooltip";
 import SearchIcon from "@mui/icons-material/Search";
 import Chat from "./Chat";
 import ConversationsModal from "./ConversationsModal";
 import ContactsModal from "./ContactsModal";
-import { auth, db } from "../config/fbconfig";
+import { auth } from "../config/fbconfig";
 import Contact from "./Contact";
 import { useHistory } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -52,11 +50,6 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
           user.name.toLowerCase().includes(search.toLowerCase())
         )
       );
-      // setFilteredChats(
-      //   chats.filter((user) =>
-      //     user?.name?.toLowerCase().includes(search.toLowerCase())
-      //   )
-      // );
     }
   }, [chats, contacts, search]);
 
@@ -88,6 +81,7 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
                 placeholder={`Search for a contact`}
                 onClick={() => setButton("Contacts")}
                 onChange={(e) => setSearch(e.target.value)}
+                onSubmit={(e) => e.preventDefault()}
               />
             </form>
           </SearchBar>
@@ -124,7 +118,7 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
               );
             })
           )
-        ) : contacts.length === 0 ? (
+        ) : contacts.length === 0 || filteredContacts.length === 0 ? (
           <ContactsContainer>You have no contacts</ContactsContainer>
         ) : (
           filteredContacts?.map((contact) => (

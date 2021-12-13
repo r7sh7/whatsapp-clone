@@ -15,7 +15,9 @@ const Main = () => {
 export default Main;
 
 const Container = styled.div`
-  flex: 1;
+  flex: 0.7;
+  width: 100%;
+  overflow: hidden;
   display: grid;
   place-items: center;
   background-color: whitesmoke;

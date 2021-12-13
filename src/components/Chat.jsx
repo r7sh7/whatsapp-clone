@@ -7,7 +7,6 @@ import getRecipientNumber from "../utils/getRecipientNumber";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useHistory } from "react-router";
 import moment from "moment";
-import firebase from "firebase";
 
 const Chat = ({ id, users, active, contacts }) => {
   const [newContact, setNewContact] = useState(true);
@@ -91,7 +90,7 @@ const Chat = ({ id, users, active, contacts }) => {
         </MessageDetails>
         <MessageStats>
           <Time newMessage={newMessages}>
-            {/* {moment(message?.timestamp?.toDate().getTime()).format("LT")} */}
+            {/* {console.log(latestMessage?.timestamp?.toDate().getTime())} */}
             {moment(latestMessage?.timestamp?.toDate()).fromNow() ===
             "24 hours ago"
               ? moment(latestMessage?.timestamp?.toDate()).format("dddd")
@@ -133,6 +132,7 @@ const ChatDetails = styled.div`
 `;
 
 const MessageDetails = styled.div`
+  max-width: 250px;
   > h4 {
     font-size: 1.1rem;
     font-weight: 500;
@@ -145,6 +145,11 @@ const MessageDetails = styled.div`
     font-weight: 500;
     margin: 0;
     color: ${(props) => (props.newMessage !== 0 ? "black" : "#646464")};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* number of lines to show */
+    -webkit-box-orient: vertical;
   }
 `;
 
@@ -155,6 +160,7 @@ const MessageStats = styled.div`
 
 const Time = styled.span`
   margin: 0.2rem 0;
+  flex-wrap: nowrap;
   text-align: center;
   font-size: 0.8rem;
   font-weight: 400;

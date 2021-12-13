@@ -104,6 +104,9 @@ const UserProfile = ({ handleBackClick }) => {
           </div>
         )}
       </ProfilePic>
+      <UserDetails>
+        <h3>{user?.phoneNumber}</h3>
+      </UserDetails>
       <InfoContainer>
         <InfoTitle>Profile Pic URL</InfoTitle>
 
@@ -256,4 +259,13 @@ const ErrorMessage = styled.div`
   margin-top: 0.2rem;
   margin-bottom: 1rem;
   color: red;
+`;
+
+const UserDetails = styled.div`
+  text-align: center;
+  > h3 {
+    font-weight: 500;
+    margin-top: 0;
+    color: #585858;
+  }
 `;
