@@ -131,7 +131,8 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
         )}
       </ChatsContainer>
       <CreateButton onClick={handleModalClick}>
-        {button === "Chats" ? "Create a Group Chat" : "Add a new Contact"}
+        {/* {button === "Chats" ? "Create a Group Chat" : "Add a new Contact"} */}
+        Add a new Contact
       </CreateButton>
       <Modal status={showModal}>
         {logoutModal === true ? (
@@ -140,9 +141,10 @@ const Sidebar = ({ id, chats, contacts, handleProfileClick }) => {
             action={handleLogout}
             actionName="Logout"
           />
-        ) : button === "Chats" ? (
-          showModal && <ConversationsModal closeModal={handleModalClick} />
         ) : (
+          // button === "Chats" ? (
+          //   showModal && <ConversationsModal closeModal={handleModalClick} />
+          // ) :
           showModal && (
             <ContactsModal
               closeModal={handleModalClick}

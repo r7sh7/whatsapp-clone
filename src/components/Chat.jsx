@@ -132,23 +132,29 @@ const ChatDetails = styled.div`
 `;
 
 const MessageDetails = styled.div`
-  max-width: 250px;
   > h4 {
     font-size: 1.1rem;
     font-weight: 500;
     margin: 0;
     margin-bottom: 0.2rem;
     color: ${(props) => (props.newMessage !== 0 ? "black" : "#2e2e2e")};
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
   }
   > p {
     font-size: 1rem;
     font-weight: 500;
     margin: 0;
     color: ${(props) => (props.newMessage !== 0 ? "black" : "#646464")};
+    max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 1; /* number of lines to show */
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
   }
 `;
