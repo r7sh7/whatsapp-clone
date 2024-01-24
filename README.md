@@ -1,70 +1,33 @@
-# Getting Started with Create React App
+# LinkedIn Clone
+This is a Whatsapp clone application that I built to practice my ReactJS skills combined with **Styled Components** and **Firebase**
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Functionality
+1) Login with Mobile Phone and OTP
+2) Update Profile
+3) Search for Contacts
+4) Add a new Contact
+5) Send Messages with Emoji Support
+6) Delete Messages
+7) Last Seen Update
 
-## Available Scripts
+## Tech Stack
+1) ReactJS with Material UI and Styled Components for the Frontend
+2) Firebase for Authentication, Database Storage and Web Hosting
 
-In the project directory, you can run:
+## Run Locally
+To run this project locally you need Node.js installed on your machine.
+1) Clone the repo
+2) Open the terminal and go inside the repo directory
+3) Install all dependencies by running `npm install` (*Update dependencies as required if you encounter any errors)
+4) run `npm start` to start the project locally
+5) Login with Phone number and OTP.<br/> 
+    **Dummy Credentials**
+    - Phone Number: +91 1234567890
+    - OTP: 098765<br/>
+Alternatively you can use your own phone number and receive the OTP on that number.
+6) If you are logging in for the first time you can follow the steps to update your profile
+7) You can add contacts and start messaging!
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
