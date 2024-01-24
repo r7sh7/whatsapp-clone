@@ -74,7 +74,5 @@ export default HomeScreen;
 
 const Container = styled.div`
   display: flex;
-  overflow: hidden;
   height: 100vh;
-  width: 100%;
 `;

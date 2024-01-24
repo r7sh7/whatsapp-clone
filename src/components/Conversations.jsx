@@ -238,8 +238,10 @@ export default Conversations;
 
 const Container = styled.div`
   flex: 0.7;
-  width: 100%;
   overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
 const HeaderContainer = styled.div`
@@ -295,6 +297,7 @@ const HeaderIcons = styled.div`
 `;
 
 const MessageConatiner = styled.div`
+  flex: 1;
   padding: 1rem;
   background-color: #e5ded8;
   height: ${(props) => (props.showPicker ? "35vh" : "79.5vh")};
@@ -306,8 +309,6 @@ const EndOfMessage = styled.div`
 `;
 
 const Footer = styled.div`
-  position: sticky;
-  bottom: 0;
 `;
 
 const InputContainer = styled.form`

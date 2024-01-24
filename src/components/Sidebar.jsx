@@ -237,7 +237,7 @@ const TabWrapper = styled.div`
 `;
 
 const ChatsContainer = styled.div`
-  height: 70vh;
+  height: 100vh;
   overflow-y: auto;
 
   ::-webkit-scrollbar {
